@@ -51,14 +51,18 @@ bool hole_pair(string &s) {
 
 int main() {
     ifstream f("input5.txt");
-    int nice = 0;
+    int nice1 = 0;
+    int nice2 = 0;
     while (!f.eof()) {
         string s;
         f >> s;
+        if (vowels(s) && duped(s) && clear(s)) {
+            nice1++;
+        }
         if (two_repeat(s) && hole_pair(s)) {
-            nice++;
+            nice2++;
         }
     }
-    cout << nice << endl;
+    cout << nice1 << " " << nice2 << endl;
     return 0;
 }
