@@ -4,7 +4,6 @@
 #include <string>
 #include <map>
 #include <sstream>
-#include <typeinfo>
 
 using namespace std;
 
@@ -38,7 +37,7 @@ struct rule {
 
 map<string, rule*> rules;
 
-struct in_rule : public rule {
+struct in_rule : rule {
     string l;
 
     virtual unsigned short calc() { return rules[l]->eval(); }
@@ -50,7 +49,7 @@ struct in_rule : public rule {
     in_rule(string s) : l(s) {}
 };
 
-struct or_rule : public rule {
+struct or_rule : rule {
     string l, r;
 
     virtual unsigned short calc() { return rules[l]->eval() | rules[r]->eval(); }
@@ -58,7 +57,7 @@ struct or_rule : public rule {
     or_rule(string a, string b) : l(a), r(b) {}
 };
 
-struct and_rule : public rule {
+struct and_rule : rule {
     string l, r;
 
     virtual unsigned short calc() { return rules[l]->eval() & rules[r]->eval(); }
@@ -66,7 +65,7 @@ struct and_rule : public rule {
     and_rule(string a, string b) : l(a), r(b) {}
 };
 
-struct lshift_rule : public rule {
+struct lshift_rule : rule {
     string r;
     unsigned short sh;
 
@@ -75,7 +74,7 @@ struct lshift_rule : public rule {
     lshift_rule(string a, unsigned short b) : r(a), sh(b) { }
 };
 
-struct rshift_rule : public rule {
+struct rshift_rule : rule {
     string r;
     unsigned short sh;
 
@@ -84,7 +83,7 @@ struct rshift_rule : public rule {
     rshift_rule(string a, unsigned short b) : r(a), sh(b) { }
 };
 
-struct not_rule : public rule {
+struct not_rule : rule {
     string r;
 
     virtual unsigned short calc() { return ~rules[r]->eval(); }
@@ -125,17 +124,14 @@ vector<token> read_input() {
 }
 
 void build_rules(vector<token>& tokens) {
-    auto i = tokens.begin(); int c = 0;
+    auto i = tokens.begin();
     while(i != tokens.end()) {
-        c++;
         rule* r = nullptr;
         if((*i).t == token::op_not) {
-            i++;
-            r = new not_rule((*i).name);
+            r = new not_rule((*++i).name);
         } else {
             token a = (*i);
-            i++;
-            token op = (*i);
+            token op = (*++i);
             if (op.t == token::op_arrow) {
                 i--;
                 if (a.t == token::signal) {
@@ -146,8 +142,7 @@ void build_rules(vector<token>& tokens) {
                     cerr << "bad signal" << endl;
                 }
             } else {
-                i++;
-                token a2 = (*i);
+                token a2 = *(++i);
                 if (a.t == token::signal && op.t == token::op_and) {
                     ostringstream os;
                     os << a.sig;
@@ -168,22 +163,20 @@ void build_rules(vector<token>& tokens) {
                         r = new rshift_rule(a.name, a2.sig);
                         break;
                     default:
-                        cerr << "bad token in op" << c << endl;
+                        cerr << "bad token in op" << endl;
                         break;
                 }
             }
 
         }
-        i++;
-        if ((*i).t != token::op_arrow) {
-            cerr << "missing arrow"<< c << endl;
+        if ((*++i).t != token::op_arrow) {
+            cerr << "missing arrow"<< endl;
         }
-        i++;
-        token res = (*i);
+        token res = *++i;
         if (r != nullptr) {
             rules.insert(make_pair(res.name, r));
         } else {
-            cerr << "no rule " << c << endl;
+            cerr << "no rule " << endl;
         }
         i++;
     }
@@ -193,7 +186,7 @@ int main() {
     vector<token> input = read_input();
     build_rules(input);
     cout << rules["a"]->eval() << endl;
-    rules.clear();
+    rules.clear(); // this leaks, big deal.
     build_rules(input);
     rules["b"] = new in_rule(3176);
     cout << rules["a"]->eval() << endl;
