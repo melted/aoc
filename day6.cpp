@@ -83,7 +83,7 @@ int main() {
         execute_instruction(i);
     }
     auto lit = count(lights.begin(), lights.end(), true);
-    long long brite = 0;
+    auto brite = 0;
     for (auto c : brights) {
         brite += c;
     }
