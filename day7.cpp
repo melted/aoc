@@ -24,12 +24,16 @@ struct rule {
     unsigned short result = 0;
     bool has_result = false;
 
-    virtual unsigned short eval() {
+    unsigned short eval() {
         if (!has_result) {
             result = calc();
             has_result = true;
         }
         return result;
+    }
+
+    virtual void reset() {
+        has_result = false;
     }
 
     virtual unsigned short calc() = 0;
@@ -41,6 +45,10 @@ struct in_rule : rule {
     string l;
 
     virtual unsigned short calc() { return rules[l]->eval(); }
+
+    virtual void reset() {
+        if (l != "") { has_result = false; }
+    }
 
     in_rule(unsigned short n)  {
         result = n;
@@ -185,10 +193,12 @@ void build_rules(vector<token>& tokens) {
 int main() {
     vector<token> input = read_input();
     build_rules(input);
-    cout << rules["a"]->eval() << endl;
-    rules.clear(); // this leaks, big deal.
-    build_rules(input);
-    rules["b"] = new in_rule(3176);
+    auto res = rules["a"]->eval();
+    cout << res << endl;
+    for(auto& p : rules) {
+        p.second->reset();
+    }
+    rules["b"] = new in_rule(res);
     cout << rules["a"]->eval() << endl;
     return 0;
 }
