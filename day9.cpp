@@ -55,12 +55,8 @@ int main() {
     iota(order.begin(), order.end(), 0);
     do {
         int d = calc_distance(order);
-        if (d < min_value) {
-            min_value = d;
-        }
-        if (d > max_value) {
-            max_value = d;
-        }
+        min_value = min(min_value, d);
+        max_value = max(max_value, d);
     } while (next_permutation(order.begin(), order.end()));
     cout << min_value << " " << max_value << endl;
     return 0;
