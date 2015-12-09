@@ -41,62 +41,75 @@ struct rule {
 
 map<string, rule*> rules;
 
+struct value {
+    enum type { imm, sym };
+
+    type t;
+    unsigned short n;
+    string s;
+
+    unsigned short eval() {
+        if(t == sym) {
+            return rules[s]->eval();
+        }
+        return n;
+    }
+    value(unsigned short sig) : t(imm), n(sig) { }
+    value(string sy) : t(sym), s(sy) { }
+};
+
 struct in_rule : rule {
-    string l;
+    value l;
 
-    virtual unsigned short calc() { return rules[l]->eval(); }
-
-    virtual void reset() {
-        if (l != "") { has_result = false; }
+    virtual unsigned short calc() {
+        return l.eval();
     }
 
-    in_rule(unsigned short n)  {
-        result = n;
-        has_result = true;
-    }
-    in_rule(string s) : l(s) {}
+    in_rule(unsigned short n) : l(n) { }
+    in_rule(string s) : l(s) { }
 };
 
 struct or_rule : rule {
-    string l, r;
+    value l, r;
 
-    virtual unsigned short calc() { return rules[l]->eval() | rules[r]->eval(); }
+    virtual unsigned short calc() { return l.eval() | r.eval(); }
 
-    or_rule(string a, string b) : l(a), r(b) {}
+    or_rule(value a, value b) : l(a), r(b) {}
 };
 
 struct and_rule : rule {
-    string l, r;
+    value l, r;
 
-    virtual unsigned short calc() { return rules[l]->eval() & rules[r]->eval(); }
+    virtual unsigned short calc() { return l.eval() & r.eval(); }
 
-    and_rule(string a, string b) : l(a), r(b) {}
+    and_rule(value a, value b) : l(a), r(b) {}
 };
 
+
 struct lshift_rule : rule {
-    string r;
+    value r;
     unsigned short sh;
 
-    virtual unsigned short calc() { return rules[r]->eval() << sh; }
+    virtual unsigned short calc() { return r.eval() << sh; }
 
-    lshift_rule(string a, unsigned short b) : r(a), sh(b) { }
+    lshift_rule(value a, unsigned short b) : r(a), sh(b) { }
 };
 
 struct rshift_rule : rule {
-    string r;
+    value r;
     unsigned short sh;
 
-    virtual unsigned short calc() { return rules[r]->eval() >> sh; }
+    virtual unsigned short calc() { return r.eval() >> sh; }
 
-    rshift_rule(string a, unsigned short b) : r(a), sh(b) { }
+    rshift_rule(value a, unsigned short b) : r(a), sh(b) { }
 };
 
 struct not_rule : rule {
-    string r;
+    value r;
 
-    virtual unsigned short calc() { return ~rules[r]->eval(); }
+    virtual unsigned short calc() { return ~r.eval(); }
 
-    not_rule(string a) : r(a) {}
+    not_rule(value a) : r(a) {}
 };
 
 token tokenize(string s) {
@@ -131,12 +144,23 @@ vector<token> read_input() {
     return result;
 }
 
+value token_value(token t) {
+    if(t.t == token::signal) {
+        return value(t.sig);
+    } else if (t.t == token::id) {
+        return value(t.name);
+    } else {
+        cout << "not a value token";
+        return value(0);
+    }
+}
+
 void build_rules(vector<token>& tokens) {
     auto i = tokens.begin();
     while(i != tokens.end()) {
         rule* r = nullptr;
         if((*i).t == token::op_not) {
-            r = new not_rule((*++i).name);
+            r = new not_rule(token_value((*++i).name));
         } else {
             token a = (*i);
             token op = (*++i);
@@ -151,24 +175,20 @@ void build_rules(vector<token>& tokens) {
                 }
             } else {
                 token a2 = *(++i);
-                if (a.t == token::signal && op.t == token::op_and) {
-                    ostringstream os;
-                    os << a.sig;
-                    rules.insert(make_pair(os.str(), new in_rule(a.sig)));
-                    a = token(os.str());
-                }
+                value x = token_value(a);
+                value y = token_value(a2);
                 switch (op.t) {
                     case token::op_or:
-                        r = new or_rule(a.name, a2.name);
+                        r = new or_rule(x, y);
                         break;
                     case token::op_and:
-                        r = new and_rule(a.name, a2.name);
+                        r = new and_rule(x, y);
                         break;
                     case token::op_lshift:
-                        r = new lshift_rule(a.name, a2.sig);
+                        r = new lshift_rule(x, a2.sig);
                         break;
                     case token::op_rshift:
-                        r = new rshift_rule(a.name, a2.sig);
+                        r = new rshift_rule(x, a2.sig);
                         break;
                     default:
                         cerr << "bad token in op" << endl;
