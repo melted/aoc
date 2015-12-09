@@ -28,7 +28,7 @@ void read_data() {
         int d;
         f >> from >> s >> to >> c >> d;
         if (from == "") break;
-        if (s != "to" && c != "=") {
+        if (s != "to" || c != "=") {
             cerr << "bad format";
             break;
         }
@@ -52,7 +52,7 @@ int main() {
     int min_value = INT32_MAX;
     int max_value = 0;
     vector<int> order(places.size());
-    iota(order.begin(), order. end(), 0);
+    iota(order.begin(), order.end(), 0);
     do {
         int d = calc_distance(order);
         if (d < min_value) {
