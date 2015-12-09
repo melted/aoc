@@ -1,20 +1,20 @@
 #include <iostream>
 #include <fstream>
 #include <string>
+#include <set>
 #include <algorithm>
 
 using namespace std;
 
 bool vowels(string &s) {
-    int count = count_if(s.begin(), s.end(), [](char c) {
-        return c == 'a' || c == 'e' || c == 'i' || c == 'o' || c == 'u';
-    });
-    return count > 2;
+    static set<char> vowels = { 'a', 'e', 'i', 'o', 'u' };
+    return count_if(s.begin(), s.end(),
+                    [&](char c) { return vowels.find(c) != vowels.end();  }) > 2;
 }
 
-bool duped(string &s) {
-    for (int i = 1; i < s.length(); i++) {
-        if (s[i - 1] == s[i]) {
+bool duped(string &s, int space) {
+    for (int i = space + 1; i < s.length(); i++) {
+        if (s[i - 1 - space] == s[i]) {
             return true;
         }
     }
@@ -30,19 +30,7 @@ bool clear(string &s) {
 
 bool two_repeat(string &s) {
     for (int i = 1; i < s.length(); i++) {
-        string t = s.substr(i + 1);
-        string ss = s.substr(i - 1, 2);
-        if (t.find(ss) != string::npos) {
-            return true;
-        }
-    }
-    return false;
-}
-
-
-bool hole_pair(string &s) {
-    for (int i = 2; i < s.length(); i++) {
-        if (s[i - 2] == s[i]) {
+        if (s.find(s.substr(i - 1, 2), i + 1) != string::npos) {
             return true;
         }
     }
@@ -56,10 +44,10 @@ int main() {
     while (!f.eof()) {
         string s;
         f >> s;
-        if (vowels(s) && duped(s) && clear(s)) {
+        if (vowels(s) && duped(s, 0) && clear(s)) {
             nice1++;
         }
-        if (two_repeat(s) && hole_pair(s)) {
+        if (two_repeat(s) && duped(s, 1)) {
             nice2++;
         }
     }
