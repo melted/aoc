@@ -3,6 +3,7 @@
 #include <vector>
 #include <string>
 #include <map>
+#include <memory>
 #include <sstream>
 
 using namespace std;
@@ -37,9 +38,10 @@ struct rule {
     }
 
     virtual unsigned short calc() = 0;
+    virtual ~rule() { }
 };
 
-map<string, rule*> rules;
+map<string, unique_ptr<rule>> rules;
 
 struct value {
     enum type { imm, sym };
@@ -202,7 +204,7 @@ void build_rules(vector<token>& tokens) {
         }
         token res = *++i;
         if (r != nullptr) {
-            rules.insert(make_pair(res.name, r));
+            rules.insert(make_pair(res.name, unique_ptr<rule>(r)));
         } else {
             cerr << "no rule " << endl;
         }
@@ -218,7 +220,7 @@ int main() {
     for(auto& p : rules) {
         p.second->reset();
     }
-    rules["b"] = new in_rule(res);
+    rules["b"] = unique_ptr<rule>(new in_rule(res));
     cout << rules["a"]->eval() << endl;
     return 0;
 }
