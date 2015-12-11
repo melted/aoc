@@ -6,16 +6,16 @@ using namespace std;
 
 string input = "3113322113";
 
-string look_and_say(string s) {
+string look_and_say(string& s) {
     ostringstream os;
-    char ch = 0;
+    char ch = s[0];
     int count = 0;
-    for(int i = 0; i < s.size(); i++) {
-        if (s[i] != ch && ch != 0) {
+    for(char c : s) {
+        if (c != ch) {
             os << count << ch;
             count = 0;
+            ch = c;
         }
-        ch = s[i];
         count++;
     }
     os << count << ch;
