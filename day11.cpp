@@ -22,7 +22,7 @@ string increment(string s) {
             carry = false;
         }
         i--;
-    } while (carry);
+    } while (i >= 0 && carry);
     return s;
 }
 
