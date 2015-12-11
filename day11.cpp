@@ -30,7 +30,6 @@ string increment(string s) {
 bool two_pairs(string s) {
     auto i = adjacent_find(s.begin(), s.end());
     if (i != s.end()) {
-        char ch = *i;
         i += 2;
         i = adjacent_find(i, s.end());
         return i != s.end();
