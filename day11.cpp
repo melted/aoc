@@ -1,7 +1,6 @@
 #include <string>
 #include <iostream>
 #include <algorithm>
-#include <vector>
 
 using namespace std;
 
@@ -17,7 +16,7 @@ string increment(string s) {
         } else {
             s[i]++;
             if (s[i] == 'i' || s[i] == 'l' || s[i] == 'o') {
-                for (int j = s.size() - 1; j > i; j--) s[j] = 'a';
+                for (int j = i + 1; j < s.size(); j++) s[j] = 'a';
                 s[i]++;
             }
             carry = false;
