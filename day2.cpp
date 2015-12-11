@@ -16,10 +16,10 @@ int ribbon(int l, int w, int h) {
 }
 
 pair<int, int> process_line(ifstream& f) {
-    char buffer[80];
-    f.getline(buffer, 80);
+    string s;
+    getline(f, s);
     int l, w, h;
-    int res = sscanf(buffer, "%dx%dx%d", &l, &w, &h);
+    int res = sscanf(s.c_str(), "%dx%dx%d", &l, &w, &h);
     if (res != 3) {
         if (f.gcount() > 0) {
             cerr << "bad input" << endl;
