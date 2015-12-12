@@ -29,8 +29,11 @@ string increment(string s) {
 bool two_pairs(string s) {
     auto i = adjacent_find(s.begin(), s.end());
     if (i != s.end()) {
+        char ch = *i;
         i += 2;
-        i = adjacent_find(i, s.end());
+        i = adjacent_find(i, s.end(), [ch](char a, char b) {
+            return a == b && a != ch;
+        });
         return i != s.end();
     }
     return false;
