@@ -52,7 +52,7 @@ void insert_blank_man() {
 int sum_happiness() {
     vector<string> position = people;
     int happy = eval_likes(position);
-    while (next_permutation(position.begin(), position.end())) {
+    while (next_permutation(position.begin()+1, position.end())) {
         happy = max(happy, eval_likes(position));
     }
     return happy;
