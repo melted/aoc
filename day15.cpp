@@ -46,7 +46,7 @@ int count_calories(vector<int>& a) {
 
 void update(vector<int> &a) {
     auto m = a.size() - 2;
-    bool overflow = false;
+    bool overflow;
     do {
         a[m]++;
         int x = 0;
@@ -66,10 +66,7 @@ void update(vector<int> &a) {
 
 int find_max(int start, int stop, bool diet) {
     int local_max = 0;
-    vector<int> a(ingredients.size());
-    for (auto& i : a) {
-        i = 0;
-    }
+    vector<int> a(ingredients.size(), 0);
     a[0] = start;
     a[a.size() - 1] = 100 - start;
     while (a[0] < stop) {
