@@ -46,21 +46,7 @@ int count_calories(vector<int>& a) {
 
 void update(vector<int> &a) {
     auto m = a.size() - 2;
-    bool overflow;
-    do {
-        a[m]++;
-        int x = 0;
-        for(int i = 0; i < m; i++) {
-            x+=a[i];
-        }
-        if (a[m] > (100 - x) && m > 0) {
-            a[m] = 0;
-            m--;
-            overflow = true;
-        } else {
-            overflow = false;
-        }
-    } while(overflow);
+    while (++a[m] > (100 - accumulate(a.begin(), a.begin() + m, 0)) && m > 0) a[m--] = 0;
     a[a.size() - 1] = 100 - accumulate(a.begin(), a.end()-1, 0);
 }
 
