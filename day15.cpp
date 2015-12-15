@@ -10,7 +10,7 @@ using namespace std;
 
 using props = array<int, 5>;
 vector<props> ingredients;
-atomic_int global_max, global_diet_max;
+atomic_int global_max(0), global_diet_max(0);
 
 void read_data() {
     ifstream f("input16.txt");
@@ -73,7 +73,7 @@ void find_max(int start, int stop) {
 }
 
 int main() {
-   read_data();
+    read_data();
     vector<thread> threads;
     threads.emplace_back(&find_max, 0, 26);
     threads.emplace_back(&find_max, 26, 51);
