@@ -10,7 +10,7 @@ using namespace std;
 
 using props = array<int, 5>;
 vector<props> ingredients;
-atomic_int global_max;
+atomic_int global_max, global_diet_max;
 
 void read_data() {
     ifstream f("input16.txt");
@@ -50,37 +50,38 @@ void update(vector<int> &a) {
     a[a.size() - 1] = 100 - accumulate(a.begin(), a.end()-1, 0);
 }
 
-int find_max(int start, int stop, bool diet) {
+void find_max(int start, int stop) {
     int local_max = 0;
+    int local_diet_max = 0;
     vector<int> a(ingredients.size(), 0);
     a[0] = start;
     a[a.size() - 1] = 100 - start;
     while (a[0] < stop) {
         int score = scoring(a);
-        int calories = diet?count_calories(a):0;
-        if (!diet || calories == 500) local_max = max(local_max, score);
+        local_max = max(local_max, score);
+        if (count_calories(a) == 500) local_diet_max = max(local_diet_max, score);
         update(a);
     }
     bool finished = true;
     do {
         int gm = global_max;
-        if (gm < local_max) {
-            finished = global_max.compare_exchange_strong(gm, local_max);
-        }
+        int gdm = global_diet_max;
+        if (gm < local_max) finished = global_max.compare_exchange_strong(gm, local_max);
+        if (gdm < local_diet_max) finished &= global_diet_max.compare_exchange_strong(
+                    gdm, local_diet_max);
     } while(!finished);
-    return local_max;
 }
 
 int main() {
-    read_data();
+   read_data();
     vector<thread> threads;
-    threads.emplace_back(&find_max, 0, 26, false);
-    threads.emplace_back(&find_max, 26, 51, false);
-    threads.emplace_back(&find_max, 51, 76, false);
-    threads.emplace_back(&find_max, 76, 101, false);
+    threads.emplace_back(&find_max, 0, 26);
+    threads.emplace_back(&find_max, 26, 51);
+    threads.emplace_back(&find_max, 51, 76);
+    threads.emplace_back(&find_max, 76, 101);
     for(auto& t : threads) {
         t.join();
     }
-    cout << global_max << " " << find_max(0, 101, true) << endl;
+    cout << global_max << " " << global_diet_max << endl;
     return 0;
 }
