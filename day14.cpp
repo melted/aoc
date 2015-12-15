@@ -4,12 +4,13 @@
 #include <vector>
 #include <tuple>
 #include <map>
+#include <algorithm>
+#include <functional>
 
 using namespace std;
 
 using deer = tuple<string, int, int, int>;
-
-vector<deer> reindeers;
+vector<deer> reindeer;
 
 void read_data() {
     ifstream f("input14.txt");
@@ -19,24 +20,20 @@ void read_data() {
         f >> n >> s >> s >> speed >> s >> s >> time
             >> s >> s >> s >> s >> s >> s >> rest >> s;
         if (n == "") break;
-        reindeers.push_back(make_tuple(n, speed, time, rest));
+        reindeer.push_back(make_tuple(n, speed, time, rest));
     }
 }
 
 int dist(deer d, int t) {
-    int ds = 0;
-    while (t > 0) {
-        int rt = min(t, get<2>(d));
-        ds += rt * get<1>(d);
-        t -= rt;
-        t -= get<3>(d);
-    }
-    return ds;
+    int cycle = get<2>(d) + get<3>(d);
+    int whole = t / cycle;
+    int partial = min(get<2>(d), t % cycle);
+    return get<1>(d)*(whole*get<2>(d) + partial);
 }
 
 int find_best(int time) {
     int maxd = 0;
-    for (auto d : reindeers) {
+    for (auto d : reindeer) {
         int ds = dist(d, time);
         maxd = max(maxd, ds);
     }
@@ -46,7 +43,7 @@ int find_best(int time) {
 vector<deer> race(int t) {
     vector<deer> out;
     int maxd = 0;
-    for (auto d : reindeers) {
+    for (auto d : reindeer) {
         int ds = dist(d, t);
         if (ds == maxd) {
             out.push_back(d);
@@ -67,11 +64,9 @@ int points(int time) {
             scoreboard[d]++;
         }
     }
-    int best = 0;
-    for (auto d : scoreboard) {
-        best = max(d.second, best);
-    }
-    return best;
+    return max_element(scoreboard.begin(), scoreboard.end(), [](auto a, auto b) {
+                            return a.second < b.second;
+                       })->second;
 }
 
 int main() {
