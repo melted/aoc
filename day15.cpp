@@ -13,7 +13,7 @@ vector<props> ingredients;
 atomic_int global_max(0), global_diet_max(0);
 
 void read_data() {
-    ifstream f("input16.txt");
+    ifstream f("input15.txt");
     while(!f.eof()) {
         string s;
         int c, d, fl, t, cal;
