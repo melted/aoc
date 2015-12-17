@@ -48,11 +48,9 @@ int main() {
     set<int> container_set(items.begin(), items.end());
     set<solution> sols = solve_subset(container_set, 150);
     map<int, int> ways;
-    int min_way = INT_MAX;
     for(auto s : sols) {
         ways[s.size()]++;
-        min_way = min(min_way, (int)s.size());
     }
-    cout << sols.size() << " " << ways[min_way] << endl;
+    cout << sols.size() << " " << (*ways.upper_bound(0)).second << endl;
     return 0;
 }
