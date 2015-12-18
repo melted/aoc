@@ -6,6 +6,13 @@
 using namespace std;
 vector<int> grid(10000);
 
+void set_stuck() {
+    grid[0] = 1;
+    grid[99] = 1;
+    grid[9900] = 1;
+    grid[9999] = 1;
+}
+
 void read_state(bool stuck) {
     ifstream f("input18.txt");
     for (int i = 0; i < grid.size(); i++) {
@@ -14,10 +21,7 @@ void read_state(bool stuck) {
         grid[i] = ch == '#' ? 1 : 0;
     }
     if (stuck) {
-        grid[0] = 1;
-        grid[99] = 1;
-        grid[9900] = 1;
-        grid[9999] = 1;
+        set_stuck();
     }
 }
 
@@ -44,10 +48,7 @@ void update(bool stuck) {
         }
     }
     if (stuck) {
-        grid[0] = 1;
-        grid[99] = 1;
-        grid[9900] = 1;
-        grid[9999] = 1;
+        set_stuck();
     }
 }
 
