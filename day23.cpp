@@ -24,8 +24,8 @@ inst parse(string s) {
                                               { "jie", inst::jie },
                                               { "jio", inst::jio } };
     istringstream is(s);
-    string ins, arg1, arg2;
-    int off;
+    string ins, arg1;
+    int off = 0;
     inst out;
     is >> ins;
     out.t = lookup[ins];
@@ -34,20 +34,17 @@ inst parse(string s) {
         case inst::tpl:
         case inst::inc:
             is >> arg1;
-            out.reg = arg1[0] == 'a'?0:1;
-            out.offset = 0;
             break;
         case inst::jmp:
             is >> off;
-            out.offset = off;
             break;
         case inst::jie:
         case inst::jio:
             is >> arg1 >> off;
-            out.reg = arg1[0] == 'a'?0:1;
-            out.offset = off;
             break;
     }
+    if (arg1 != "") out.reg = arg1[0] == 'a'? 0 : 1;
+    out.offset = off;
     return out;
 }
 
@@ -64,41 +61,35 @@ void read_program() {
 
 pair<int, int> execute(int a) {
     int reg[2] = { a, 0 };
-    int pc = 0;
-
+    int pc = 0, next;
     while(pc < code.size()) {
         inst i = code[pc];
+        next = pc + 1;
         switch (i.t) {
             case inst::hlf:
                 reg[i.reg] /= 2;
-                pc++;
                 break;
             case inst::tpl:
                 reg[i.reg] *= 3;
-                pc++;
                 break;
             case inst::inc:
                 reg[i.reg]++;
-                pc++;
                 break;
             case inst::jmp:
-                pc+=i.offset;
+                next = pc + i.offset;
                 break;
             case inst::jio:
                 if (reg[i.reg] == 1) {
-                    pc+=i.offset;
-                } else {
-                    pc++;
+                    next = pc + i.offset;
                 }
                 break;
             case inst::jie:
                 if ((reg[i.reg] % 2) == 0) {
-                    pc+=i.offset;
-                } else {
-                    pc++;
+                    next = pc + i.offset;
                 }
                 break;
         }
+        pc = next;
     }
     return make_pair(reg[0], reg[1]);
 }
