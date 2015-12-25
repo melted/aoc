@@ -50,12 +50,10 @@ vector<vector<int>> get_group(vector<int> from, vector<int> acc, int target, int
 
 void solve() {
     int t = accumulate(packets.begin(), packets.end(), 0)/3;
-    set<int> s(packets.begin(), packets.end());
     auto part = get_group(packets, vector<int>(), t, 6);
     sort(part.begin(), part.end(), [](vector<int> a, vector<int> b) {
         return a.size() < b.size();
     });
-    cout << part.size() << endl;
     vector<vector<int>> candidates;
     auto size = part.begin()->size();
     auto i = part.begin();
@@ -64,7 +62,7 @@ void solve() {
         sort((*i).begin(), (*i).end());
         set_difference(packets.begin(), packets.end(),
                        (*i).begin(),(*i).end(), rest.begin());
-        auto sols = get_group(rest, vector<int>(), t, rest.size());
+        auto sols = get_group(rest, vector<int>(), t, rest.size()/2);
         if (sols.size() > 0) {
             candidates.push_back(*i);
         }
@@ -77,9 +75,7 @@ void solve() {
         long long qe = 1;
         for (auto j : c) {
             qe *= j;
-            cout << j << " ";
         }
-        cout << qe << endl;
         min_qe = min(min_qe, qe);
     }
     cout << min_qe << endl;
@@ -87,12 +83,10 @@ void solve() {
 
 void solve2() {
     int t = accumulate(packets.begin(), packets.end(), 0)/4;
-    set<int> s(packets.begin(), packets.end());
     auto part = get_group(packets, vector<int>(), t, 6);
     sort(part.begin(), part.end(), [](vector<int> a, vector<int> b) {
         return a.size() < b.size();
     });
-    cout << part.size() << endl;
     vector<vector<int>> candidates;
     auto size = part.begin()->size();
     auto i = part.begin();
@@ -108,7 +102,7 @@ void solve2() {
                 sort(s.begin(), s.end());
                 set_difference(rest.begin(), rest.end(),
                                s.begin(),s.end(), rest2.begin());
-                auto sols2 = get_group(rest2, vector<int>(), t, rest.size()/3);
+                auto sols2 = get_group(rest2, vector<int>(), t, rest2.size()/2);
                 if (sols2.size() > 0) {
                     candidates.push_back(*i);
                     break;
@@ -124,9 +118,7 @@ void solve2() {
         long long qe = 1;
         for (auto j : c) {
             qe *= j;
-            cout << j << " ";
         }
-        cout << qe << endl;
         min_qe = min(min_qe, qe);
     }
     cout << min_qe << endl;
@@ -134,6 +126,7 @@ void solve2() {
 
 int main() {
     packets = read_data();
+    solve();
     solve2();
     return 0;
 }
